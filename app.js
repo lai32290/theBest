@@ -22,9 +22,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 app.get('/', index);
-app.post('/bestScores', bestScores);
-app.post('/newApp', newApp);
-app.post('/insert', insertScore);
+app.post('/app/bestScores', bestScores);
+app.post('/app/new', newApp);
+
+app.post('/user/insert', insertScore);
+app.post('/user/scores', userScores);
 
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
@@ -54,9 +56,8 @@ function insertScore(req, res) {
 	}
 
 	var user = app.getUserById(user_id);
-
 	if(user === undefined) {
-		user = new User(user_id);
+		user = app.newUser(user_id);
 	}
 
 	user.insertScore(score);
@@ -64,7 +65,7 @@ function insertScore(req, res) {
 	res.send('Success');
 }
 
-function bestScores = function(req, res) {
+function bestScores(req, res) {
 	var appHash = req.body[props.appHash];
 
 	var app = findAppByHash(appHash);
@@ -76,6 +77,24 @@ function bestScores = function(req, res) {
 	return app.bestScores();
 }
 
+function userScores(req, res) {
+	var appHash = req.body[props.appHash];
+	var user_id = req.body[props.userId];
+
+	var app  = findAppByHash(appHash);
+	if(app === undefined) {
+		appNotFound(req, res);
+		return;
+	}
+
+	var user = app.getUserById(user_id);
+	if(user === undefined) {
+		userNotFound(req, res);
+	}
+
+	res.send(user.getScores());
+}
+
 //////////////////
 function findAppByHash(hash) {
 	return apps.find(function(item) {
@@ -84,6 +103,10 @@ function findAppByHash(hash) {
 }
 
 function appNotFound(req, res) {
-	res.find('App not found');
+	res.send('App not found');
+}
+
+function userNotFound(req, res) {
+	res.send('User not found');
 }
 //////////////////

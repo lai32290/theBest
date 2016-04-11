@@ -27,7 +27,12 @@ App.prototype.getUserById = function(id) {
 };
 
 App.prototype.bestScores = function() {
-	
+	return this.users.map(function(user) {
+		return {
+			id: user.id
+			, bestScore: user.bestScore()
+		};
+	});
 }
 
 
