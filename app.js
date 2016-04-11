@@ -49,11 +49,9 @@ function insertScore(req, res) {
 	var user_id = req.body[props.userId];
 	var score   = req.body[props.score];
 
-	var app  = findAppByHash(appHash);
-	if(app === undefined) {
+	var app = findAppByHash(appHash, function() {
 		appNotFound(req, res);
-		return;
-	}
+	});
 
 	var user = app.getUserById(user_id);
 	if(user === undefined) {
@@ -68,24 +66,34 @@ function insertScore(req, res) {
 function bestScores(req, res) {
 	var appHash = req.body[props.appHash];
 
-	var app = findAppByHash(appHash);
-	if(app === undefined) {
+	var app = findAppByHash(appHash, function() {
 		appNotFound(req, res);
-		return;
-	}
+	});
 
 	return app.bestScores();
+}
+
+function userBestScore(req, res) {
+	var appHash = req.body[props.appHash];
+	var user_id = req.body[props.userId];
+
+	var app = findAppByHash(appHash, function() {
+		appNotFound(req, res);
+	});
+
+	var user = app.getUserById(user_id);
+	if(user === undefined) {
+		userNotFound(req, res);
+	}
 }
 
 function userScores(req, res) {
 	var appHash = req.body[props.appHash];
 	var user_id = req.body[props.userId];
 
-	var app  = findAppByHash(appHash);
-	if(app === undefined) {
+	var app = findAppByHash(appHash, function() {
 		appNotFound(req, res);
-		return;
-	}
+	});
 
 	var user = app.getUserById(user_id);
 	if(user === undefined) {
@@ -96,10 +104,17 @@ function userScores(req, res) {
 }
 
 //////////////////
-function findAppByHash(hash) {
-	return apps.find(function(item) {
+function findAppByHash(hash, appNotExist) {
+	var _app = apps.find(function(item) {
 		return item.hash == hash;
 	});
+
+	if(_app === undefined) {
+		appNotExist();
+		return undefined;
+	}
+
+	return _app;
 }
 
 function appNotFound(req, res) {
