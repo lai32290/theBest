@@ -108,13 +108,43 @@ function insertScore(req, res) {
 }
 
 function bestScores(req, res) {
-	var appHash = req.body[props.appHash];
+	try {
+		var appHash = req.body[props.appHash];
 
-	var app = findAppByHash(appHash, function() {
-		appNotFound(req, res);
-	});
+		AppSchema.findOne({ hash: appHash})
+			.then(function(resApp, err) {
+				if(err) {
+					throw err;
+				}
 
-	return app.bestScores();
+				if(resApp == undefined) {
+					var erro = 'App not found';
+					console.log(error);
+					throw error;
+				}
+
+				app = resApp;
+
+				return UserSchema.find({ 
+							appHash: resApp.hash 
+						})
+						.select('id scores -_id');
+			})
+			.then(function(result, err) {
+				if(err) throw err;
+
+				var values = result.map(function(res) {
+					return {
+						id: res.id
+						, score: bestScore(res.scores)
+					};
+				});
+
+				res.send(values);
+			});
+	} catch (err) {
+		res.send(err);
+	}
 }
 
 function userBestScore(req, res) {
@@ -153,7 +183,7 @@ function userBestScore(req, res) {
 					throw error;
 				}
 
-				var bestScore = Math.max.apply(Math, result.scores);
+				var bestScore = bestScore(result.scores);
 
 				res.send({score: bestScore});
 			});
@@ -241,5 +271,9 @@ function appNotFound(req, res) {
 
 function userNotFound(req, res) {
 	res.send('User not found');
+}
+
+function bestScore(scores) {
+	return Math.max.apply(Math, scores);
 }
 //////////////////
