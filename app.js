@@ -36,7 +36,11 @@ app.post('/user/bestScore', userBestScore);
 
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
-	mongoose.connect('mongodb://localhost/the_best');
+	var db = mongoose.createConnection('mongodb://localhost/the_best');
+
+	db.on('open', function() {
+		console.log('MongoDB is connected');
+	});
 });
 
 function index(req, res) {
@@ -236,43 +240,6 @@ function userScores(req, res) {
 }
 
 //////////////////
-function findAppByHash(hash, appNotExist) {
-	var _app = apps.find(function(item) {
-		return item.hash == hash;
-	});
-
-	if(_app === undefined) {
-		appNotExist();
-		return undefined;
-	}
-
-	return _app;
-}
-
-function getApp(hash, req, res, successCallback) {
-	AppSchema.findOne({ hash: appHash})
-		.then(function(resApp, err) {
-			if(err) {
-				throw err;
-			}
-
-			if(resApp == undefined) {
-				var erro = 'App not found';
-				console.log(error);
-				throw error;
-			}
-
-		});
-}
-
-function appNotFound(req, res) {
-	res.send('App not found');
-}
-
-function userNotFound(req, res) {
-	res.send('User not found');
-}
-
 function bestScore(scores) {
 	return Math.max.apply(Math, scores);
 }
