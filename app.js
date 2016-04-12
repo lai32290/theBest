@@ -1,12 +1,16 @@
 const crypto = require('crypto')
 	, express = require('express')
 	, bodyParser = require('body-parser')
+	, mongoose = require('mongoose')
 	, app = express()
 	, port = 3000
 	;
 
 var App = require('./modules/App.js')
 	User = require('./modules/User.js')
+	;
+
+var AppSchema = require('./schemas/AppSchema.js')
 	;
 
 var apps = []
@@ -30,6 +34,7 @@ app.post('/user/scores', userScores);
 
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
+	mongoose.connect('mongodb://localhost/the_best');
 });
 
 function index(req, res) {
@@ -38,10 +43,15 @@ function index(req, res) {
 
 function newApp(req, res) {
 	var appName = req.body.name;
-	var app = new App(appName);
-	apps.push(app);
+	var app = new AppSchema({
+		name: appName
+	});
 
-	res.send('Your hash: ' + app.hash);
+	app.save(function(err) {
+		if(err) throw err;
+
+		res.send('Your hash: ' + app.hash);
+	});
 }
 
 function insertScore(req, res) {
