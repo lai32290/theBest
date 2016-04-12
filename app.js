@@ -142,41 +142,67 @@ function userBestScore(req, res) {
 							appHash: resApp.hash 
 							, id: userId
 						})
-						.select('scores');
+						.select('scores -_id');
 			})
-			.then(function(resUser, err) {
+			.then(function(result, err) {
 				if(err)	throw err;
 
-				if(resUser == undefined) {
+				if(result == undefined) {
 					var error = 'User not found';
 					console.log(error);
 					throw error;
 				}
 
-				var bestScore = Math.max.apply(Math, resUser.scores);
+				var bestScore = Math.max.apply(Math, result.scores);
 
 				res.send({score: bestScore});
 			});
 	} catch (err) {
 		res.send(err);
 	}
-	
 }
 
 function userScores(req, res) {
-	var appHash = req.body[props.appHash];
-	var user_id = req.body[props.userId];
+	try {
+		var appHash = req.body[props.appHash];
+		var userId  = req.body[props.userId];
 
-	var app = findAppByHash(appHash, function() {
-		appNotFound(req, res);
-	});
+		var app;
 
-	var user = app.getUserById(user_id);
-	if(user === undefined) {
-		userNotFound(req, res);
+		AppSchema.findOne({ hash: appHash})
+			.then(function(resApp, err) {
+				if(err) {
+					throw err;
+				}
+
+				if(resApp == undefined) {
+					var erro = 'App not found';
+					console.log(error);
+					throw error;
+				}
+
+				app = resApp;
+
+				return UserSchema.findOne({ 
+							appHash: resApp.hash 
+							, id: userId
+						})
+						.select('scores -_id');
+			})
+			.then(function(result, err) {
+				if(err)	throw err;
+
+				if(result == undefined) {
+					var error = 'User not found';
+					console.log(error);
+					throw error;
+				}
+
+				res.send(result);
+			});
+	} catch (err) {
+		res.send(err);
 	}
-
-	res.send(user.getScores());
 }
 
 //////////////////
