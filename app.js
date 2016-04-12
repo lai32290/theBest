@@ -11,6 +11,7 @@ var App = require('./modules/App.js')
 	;
 
 var AppSchema = require('./schemas/AppSchema.js')
+	, UserSchema = require('./schemas/UserSchema.js')
 	;
 
 var apps = []
@@ -55,22 +56,57 @@ function newApp(req, res) {
 }
 
 function insertScore(req, res) {
-	var appHash = req.body[props.appHash];
-	var user_id = req.body[props.userId];
-	var score   = req.body[props.score];
+	try {
+		var appHash = req.body[props.appHash];
+		var userId = req.body[props.userId];
+		var score   = req.body[props.score];
 
-	var app = findAppByHash(appHash, function() {
-		appNotFound(req, res);
-	});
+		var app = undefined
+			, user = undefined;
 
-	var user = app.getUserById(user_id);
-	if(user === undefined) {
-		user = app.newUser(user_id);
+		AppSchema.findOne({ hash: appHash})
+			.then(function(resApp, err) {
+				if(err) {
+					throw err;
+				}
+
+				if(resApp == undefined) {
+					var erro = 'App not found';
+					console.log(error);
+					throw error;
+				}
+
+				app = resApp;
+
+				return UserSchema.findOne({ 
+					appHash: resApp.hash 
+					, id: userId
+				});
+			})
+			.then(function(resUser, err) {
+				if(err) {
+					throw err;
+				}
+
+				if(resUser == undefined) {
+					resUser = new UserSchema({
+						appHash: app.hash
+						, id: userId
+					});
+				}
+
+				user = resUser;
+
+				user.scores.push(score);
+				user.save(function(err) {
+					if(err)	throw err;
+	
+					res.send('Success');
+				});
+			});
+	} catch(e) {
+		res.send(e);
 	}
-
-	user.insertScore(score);
-
-	res.send('Success');
 }
 
 function bestScores(req, res) {
