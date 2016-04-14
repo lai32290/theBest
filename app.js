@@ -36,9 +36,7 @@ app.post('/user/bestScore', userBestScore);
 
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
-	var db = mongoose.createConnection('mongodb://localhost/the_best');
-
-	db.on('open', function() {
+	mongoose.connect('mongodb://localhost/the_best', function() {
 		console.log('MongoDB is connected');
 	});
 });
@@ -127,24 +125,25 @@ function bestScores(req, res) {
 					throw error;
 				}
 
-				app = resApp;
+				var app = resApp;
 
-				return UserSchema.find({ 
-							appHash: resApp.hash 
-						})
-						.select('id scores -_id');
+				return UserSchema.aggregate(
+				{
+					$match: { appHash: app.hash }
+				}, {
+					$project: {
+						_id: {},
+						id: "$id",
+						theBest: {
+							$max : "$scores"
+						}
+					}
+				}).exec();
 			})
 			.then(function(result, err) {
 				if(err) throw err;
 
-				var values = result.map(function(res) {
-					return {
-						id: res.id
-						, score: bestScore(res.scores)
-					};
-				});
-
-				res.send(values);
+				res.send(result);
 			});
 	} catch (err) {
 		res.send(err);
