@@ -21,6 +21,7 @@ var props = {
 	appHash: 'app_hash'
 	, userId: 'user_id'
 	, score: 'score'
+	, topLimit: 'top_limit'
 };
 
 app.use(bodyParser.json());  
@@ -28,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', index);
 app.post('/app/bestScores', bestScores);
+app.post('/app/tops', tops);
 app.post('/app/new', newApp);
 
 app.post('/user/insert', insertScore);
@@ -127,18 +129,38 @@ function bestScores(req, res) {
 
 				var app = resApp;
 
-				return UserSchema.aggregate(
-				{
-					$match: { appHash: app.hash }
-				}, {
-					$project: {
-						_id: {},
-						id: "$id",
-						theBest: {
-							$max : "$scores"
-						}
-					}
-				}).exec();
+				return bestScoresAggregade({ appHash: app.hash }).sort('-bestScore').exec();
+			})
+			.then(function(result, err) {
+				if(err) throw err;
+
+				res.send(result);
+			});
+	} catch (err) {
+		res.send(err);
+	}
+}
+
+function tops(req, res) {
+	try {
+		var appHash  = req.body[props.appHash];
+		var topLimit = req.body[props.topLimit];
+
+		AppSchema.findOne({ hash: appHash})
+			.then(function(resApp, err) {
+				if(err) {
+					throw err;
+				}
+
+				if(resApp == undefined) {
+					var erro = 'App not found';
+					console.log(error);
+					throw error;
+				}
+
+				var app = resApp;
+
+				return bestScoresAggregade({ appHash: app.hash }).limit(topLimit).exec();
 			})
 			.then(function(result, err) {
 				if(err) throw err;
@@ -171,11 +193,13 @@ function userBestScore(req, res) {
 
 				app = resApp;
 
-				return UserSchema.findOne({ 
-							appHash: resApp.hash 
-							, id: userId
-						})
-						.select('scores -_id');
+				return bestScoresAggregade({ appHash: resApp.hash, id: userId }).exec();
+
+				// return UserSchema.findOne({ 
+				// 			appHash: resApp.hash 
+				// 			, id: userId
+				// 		})
+				// 		.select('scores -_id');
 			})
 			.then(function(result, err) {
 				if(err)	throw err;
@@ -186,9 +210,7 @@ function userBestScore(req, res) {
 					throw error;
 				}
 
-				var bestScore = bestScore(result.scores);
-
-				res.send({score: bestScore});
+				res.send(result);
 			});
 	} catch (err) {
 		res.send(err);
@@ -241,5 +263,20 @@ function userScores(req, res) {
 //////////////////
 function bestScore(scores) {
 	return Math.max.apply(Math, scores);
+}
+
+function bestScoresAggregade(match) {
+	return UserSchema.aggregate(
+		{
+			$match: match
+		}, {
+			$project: {
+				_id: {},
+				id: "$id",
+				bestScore: {
+					$max : "$scores"
+				}
+			}
+		});
 }
 //////////////////
