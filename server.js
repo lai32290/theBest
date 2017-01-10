@@ -4,6 +4,7 @@ const crypto = require('crypto')
 	, mongoose = require('mongoose')
 	, app = express()
 	, port = 3000
+	, mongoHost = process.env.MONGO || 'localhost'
 	;
 
 var App = require('./modules/App.js')
@@ -38,7 +39,8 @@ app.post('/user/bestScore', userBestScore);
 
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
-	mongoose.connect('mongodb://localhost/the_best', function() {
+	console.log('Host MongoDB : '+ mongoHost);
+	mongoose.connect('mongodb://'+ mongoHost +'/the_best', function() {
 		console.log('MongoDB is connected');
 	});
 });
