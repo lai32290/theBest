@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 app.get('/', index);
-app.post('/app/bestScores', bestScores);
+app.post('/app/bestScores', bestScores2);
 app.post('/app/tops', tops);
 app.post('/app/new', newApp);
 
@@ -282,3 +282,28 @@ function bestScoresAggregade(match) {
 		});
 }
 //////////////////
+function bestScores2(req, res) {
+    try {
+        var appHash  = req.body[props.appHash];
+
+        AppSchema.mapReduce({
+        	query: { hash: appHash},
+        	map: function () {
+                emit(this.id, this.scores);
+            },
+			reduce:function (key, value) {
+                var values = value.map(function (i) {
+                    return parseInt(i);
+                });
+
+                return values.reduce(function (curr, next) {
+                    return curr + next;
+                }, 0);
+            }
+		}, function(err, results) {
+            res.send(results);
+        });
+    } catch (err) {
+        res.send(err);
+    }
+}
