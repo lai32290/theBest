@@ -284,19 +284,23 @@ function bestScoresAggregade(match) {
 //////////////////
 function bestScores2(req, res) {
     try {
+    	console.log('yes');
         var appHash  = req.body[props.appHash];
 
-        AppSchema.mapReduce({
-        	query: { hash: appHash},
+        UserSchema.mapReduce({
+        	query: { appHash: appHash},
+            // out: 'kkk',
+			verbose: true,
         	map: function () {
                 emit(this.id, this.scores);
             },
-			reduce:function (key, value) {
-                var values = value.map(function (i) {
+            reduce :function (key, value) {
+				return value.length;
+                var val = value.map(function (i) {
                     return parseInt(i);
                 });
 
-                return values.reduce(function (curr, next) {
+                return val.reduce(function (curr, next) {
                     return curr + next;
                 }, 0);
             }
