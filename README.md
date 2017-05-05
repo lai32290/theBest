@@ -4,7 +4,7 @@ The Best is a tiny and simple ranking API.
 
 ## URL
 
-### POST `/status`
+### `/status` (POST)
 Check if the API is working.
 
 #### Parameters:
@@ -13,7 +13,7 @@ No parameters required
 #### Result:
 `{ message : "The Best is On!" }`
 
-###`/app/new` (POST)
+### `/app/new` (POST)
 Register a new application in the service and returing a hash to use in other requests.
 
 #### Parameters:
