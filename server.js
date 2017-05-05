@@ -8,7 +8,7 @@ const crypto = require('crypto')
 	;
 
 var App = require('./modules/App.js')
-	User = require('./modules/User.js')
+ 	, User = require('./modules/User.js')
 	;
 
 var AppSchema = require('./schemas/AppSchema.js')
@@ -29,6 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 app.get('/', index);
+app.get('/status', getStatus);
 app.post('/app/bestScores', bestScores);
 app.post('/app/tops', tops);
 app.post('/app/new', newApp);
@@ -49,17 +50,22 @@ function index(req, res) {
 	res.sendFile(__dirname + '/index.html');
 }
 
+function getStatus(req, res) {
+    res.send({message: 'The Best is On!'});
+}
+
 function newApp(req, res) {
 	var appName = req.body.name;
 	var app = new AppSchema({
 		name: appName
 	});
 
-	app.save(function(err) {
-		if(err) throw err;
+    app.save()
+        .then(function(res) {
+            res.send('Your hash: ' + res.hash);
+        });
 
-		res.send('Your hash: ' + app.hash);
-	});
+    return;
 }
 
 function insertScore(req, res) {
@@ -76,7 +82,7 @@ function insertScore(req, res) {
 					throw err;
 				}
 
-				if(resApp == undefined) {
+				if(resApp === undefined) {
 					var erro = 'App not found';
 					console.log(error);
 					throw error;
@@ -92,7 +98,7 @@ function insertScore(req, res) {
 			.then(function(resUser, err) {
 				if(err) throw err;
 
-				if(resUser == undefined) {
+				if(resUser === undefined) {
 					resUser = new UserSchema({
 						appHash: app.hash
 						, id: userId
@@ -123,7 +129,7 @@ function bestScores(req, res) {
 					throw err;
 				}
 
-				if(resApp == undefined) {
+				if(resApp === undefined) {
 					var erro = 'App not found';
 					console.log(error);
 					throw error;
@@ -154,7 +160,7 @@ function tops(req, res) {
 					throw err;
 				}
 
-				if(resApp == undefined) {
+				if(resApp === undefined) {
 					var erro = 'App not found';
 					console.log(error);
 					throw error;
@@ -187,7 +193,7 @@ function userBestScore(req, res) {
 					throw err;
 				}
 
-				if(resApp == undefined) {
+				if(resApp === undefined) {
 					var erro = 'App not found';
 					console.log(error);
 					throw error;
@@ -206,7 +212,7 @@ function userBestScore(req, res) {
 			.then(function(result, err) {
 				if(err)	throw err;
 
-				if(result == undefined) {
+				if(result === undefined) {
 					var error = 'User not found';
 					console.log(error);
 					throw error;
@@ -232,7 +238,7 @@ function userScores(req, res) {
 					throw err;
 				}
 
-				if(resApp == undefined) {
+				if(resApp === undefined) {
 					var erro = 'App not found';
 					console.log(error);
 					throw error;
@@ -249,7 +255,7 @@ function userScores(req, res) {
 			.then(function(result, err) {
 				if(err)	throw err;
 
-				if(result == undefined) {
+				if(result === undefined) {
 					var error = 'User not found';
 					console.log(error);
 					throw error;
