@@ -2,6 +2,7 @@ const crypto = require('crypto')
 	, express = require('express')
 	, bodyParser = require('body-parser')
 	, mongoose = require('mongoose')
+    , bluebird = require('bluebird')
 	, app = express()
 	, port = 3000
 	, mongoHost = process.env.MONGO || 'localhost'
@@ -24,6 +25,8 @@ var props = {
 	, score: 'score'
 	, topLimit: 'top_limit'
 };
+
+mongoose.Promise = bluebird;
 
 app.use(bodyParser.json());  
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -57,15 +60,14 @@ function getStatus(req, res) {
 function newApp(req, res) {
 	var appName = req.body.name;
 	var app = new AppSchema({
-		name: appName
+        hash: crypto.randomBytes(20).toString('hex')
+        , name: appName
 	});
-
+    
     app.save()
-        .then(function(res) {
-            res.send('Your hash: ' + res.hash);
+        .then(r => {
+            res.send({ hash : r.hash});
         });
-
-    return;
 }
 
 function insertScore(req, res) {

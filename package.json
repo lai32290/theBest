@@ -9,9 +9,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "body-parser": "^1.15",
     "express": "^4.13.4",
     "mongodb": "^2.1.16",
-    "mongoose": "^4.4.12",
-	"body-parser": "^1.15"
+    "mongoose": "^4.4.12"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0"
   }
 }

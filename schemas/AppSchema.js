@@ -4,8 +4,8 @@ const mongoose = require('mongoose')
 	;
 
 var AppSchema = new Schema({
-	hash: { type: String, default: crypto.randomBytes(20).toString('hex') }
-	, name: String
+	hash: { type: String }
+	, name: { type: String }
 	, users: []
 });
 
