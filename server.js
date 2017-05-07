@@ -206,46 +206,18 @@ function userBestScore(req, res) {
 }
 
 function userScores(req, res) {
-	try {
-		var appHash = req.body[props.appHash];
-		var userId  = req.body[props.userId];
+    const appHash = req.body[props.appHash];
+    const userId  = req.body[props.userId];
 
-		var app;
+    co(function*() {
+        const app = yield AppSchema.findOne({ hash : appHash });
 
-		AppSchema.findOne({ hash: appHash})
-			.then(function(resApp, err) {
-				if(err) {
-					throw err;
-				}
+        if(app === null)
+            throw 'App not found.';
 
-				if(resApp === undefined) {
-					var erro = 'App not found';
-					console.log(error);
-					throw error;
-				}
-
-				app = resApp;
-
-				return UserSchema.findOne({ 
-							appHash: resApp.hash 
-							, id: userId
-						})
-						.select('scores -_id');
-			})
-			.then(function(result, err) {
-				if(err)	throw err;
-
-				if(result === undefined) {
-					var error = 'User not found';
-					console.log(error);
-					throw error;
-				}
-
-				res.send(result);
-			});
-	} catch (err) {
-		res.send(err);
-	}
+        const scores = yield UserSchema.findOne({ appHash, id: userId }).select('scores');
+        res.send(success(scores));
+    });
 }
 
 //////////////////
