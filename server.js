@@ -95,14 +95,6 @@ function newApp(req, res) {
         });
 }
 
-function* aa() {
-    const result = yield AppSchema.find();
-    return result;
-}
-
-let a = co(aa);
-console.log('jiji', a);
-
 function insertScore(req, res) {
     const appHash = req.body[props.appHash];
     const userId = req.body[props.userId];
