@@ -49,12 +49,20 @@ app.listen(port, function() {
 	});
 });
 
+function success(data) {
+    return {
+        status: 'success',
+        statusCode: 1,
+        data: data
+    };
+}
+
 function index(req, res) {
 	res.sendFile(__dirname + '/index.html');
 }
 
 function getStatus(req, res) {
-    res.send({message: 'The Best is On!'});
+    res.send(success({message: 'The Best is On!'}));
 }
 
 function newApp(req, res) {
@@ -66,7 +74,7 @@ function newApp(req, res) {
     
     app.save()
         .then(r => {
-            res.send({ hash : r.hash});
+            res.send(success({ hash : r.hash}));
         });
 }
 
