@@ -34,7 +34,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', index);
 app.get('/status', getStatus);
-app.post('/app/bestScores', bestScores);
 app.post('/app/tops', tops);
 app.post('/app/new', newApp);
 
@@ -117,65 +116,20 @@ function insertScore(req, res) {
     });
 }
 
-function bestScores(req, res) {
-	try {
-		var appHash = req.body[props.appHash];
-
-		AppSchema.findOne({ hash: appHash})
-			.then(function(resApp, err) {
-				if(err) {
-					throw err;
-				}
-
-				if(resApp === undefined) {
-					var erro = 'App not found';
-					console.log(error);
-					throw error;
-				}
-
-				var app = resApp;
-
-				return bestScoresAggregade({ appHash: app.hash }).sort('-bestScore').exec();
-			})
-			.then(function(result, err) {
-				if(err) throw err;
-
-				res.send(result);
-			});
-	} catch (err) {
-		res.send(err);
-	}
-}
-
 function tops(req, res) {
-	try {
-		var appHash  = req.body[props.appHash];
-		var topLimit = req.body[props.topLimit];
+    const appHash  = req.body[props.appHash];
+    const topLimit = req.body[props.topLimit] || 10;
 
-		AppSchema.findOne({ hash: appHash})
-			.then(function(resApp, err) {
-				if(err) {
-					throw err;
-				}
+    co(function* () {
+        const app = yield AppSchema.findOne({ hash: appHash});
 
-				if(resApp === undefined) {
-					var erro = 'App not found';
-					console.log(error);
-					throw error;
-				}
+        if(app === null)
+            throw 'App not found.';
 
-				var app = resApp;
+        const bestScores = yield bestScoresAggregade({ appHash }).limit(topLimit).exec();
 
-				return bestScoresAggregade({ appHash: app.hash }).limit(topLimit).exec();
-			})
-			.then(function(result, err) {
-				if(err) throw err;
-
-				res.send(result);
-			});
-	} catch (err) {
-		res.send(err);
-	}
+        res.send(success(bestScores));
+    });
 }
 
 function userBestScore(req, res) {
@@ -231,7 +185,6 @@ function bestScoresAggregade(match) {
 			$match: match
 		}, {
 			$project: {
-				_id: {},
 				id: "$id",
 				bestScore: {
 					$max : "$scores"
