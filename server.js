@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+    , co = require('co')
 	, express = require('express')
 	, bodyParser = require('body-parser')
 	, mongoose = require('mongoose')
@@ -37,7 +38,7 @@ app.post('/app/bestScores', bestScores);
 app.post('/app/tops', tops);
 app.post('/app/new', newApp);
 
-app.post('/user/insert', insertScore);
+app.post('/user/insertScore', insertScore);
 app.post('/user/scores', userScores);
 app.post('/user/bestScore', userBestScore);
 
@@ -56,6 +57,22 @@ function success(data) {
         data: data
     };
 }
+
+    /*
+function* getAppByHash(appHash) {
+    AppSchema.findOne({ hash: appHash})
+        .then(function(res) {
+            yeild res;
+        });
+}
+
+function* getUserById(appHash, id) {
+    UserSchema.findOne({appHash, id })
+        .then(res => {
+            yield res;
+        });
+}
+*/
 
 function index(req, res) {
 	res.sendFile(__dirname + '/index.html');
@@ -78,55 +95,34 @@ function newApp(req, res) {
         });
 }
 
+function* aa() {
+    const result = yield AppSchema.find();
+    return result;
+}
+
+let a = co(aa);
+console.log('jiji', a);
+
 function insertScore(req, res) {
-	try {
-		var appHash = req.body[props.appHash];
-		var userId = req.body[props.userId];
-		var score   = req.body[props.score];
+    const appHash = req.body[props.appHash];
+    const userId = req.body[props.userId];
+    const score   = req.body[props.score];
 
-		var app, user;
+    co(function* () {
+        const app = yield AppSchema.findOne({ hash : appHash });
+        if(app === null)
+            throw 'App not found.';
 
-		AppSchema.findOne({ hash: appHash})
-			.then(function(resApp, err) {
-				if(err) {
-					throw err;
-				}
+        let user = yield UserSchema.findOne({ id : userId, appHash });
 
-				if(resApp === undefined) {
-					var erro = 'App not found';
-					console.log(error);
-					throw error;
-				}
+        if(user === null)
+            user = new UserSchema({ id : userId, appHash});
 
-				app = resApp;
+        user.scores.push(score);
 
-				return UserSchema.findOne({ 
-					appHash: resApp.hash 
-					, id: userId
-				});
-			})
-			.then(function(resUser, err) {
-				if(err) throw err;
-
-				if(resUser === undefined) {
-					resUser = new UserSchema({
-						appHash: app.hash
-						, id: userId
-					});
-				}
-
-				user = resUser;
-
-				user.scores.push(score);
-				user.save(function(err) {
-					if(err)	throw err;
-
-					res.send('Success');
-				});
-			});
-	} catch(err) {
-		res.send(err);
-	}
+        const result = yield user.save();
+        res.send(success(result));
+    });
 }
 
 function bestScores(req, res) {
@@ -191,48 +187,30 @@ function tops(req, res) {
 }
 
 function userBestScore(req, res) {
-	try {
-		var appHash = req.body[props.appHash];
-		var userId  = req.body[props.userId];
+    const appHash = req.body[props.appHash];
+    const userId  = req.body[props.userId];
 
-		var app;
+    co(function*() {
+        const app = yield AppSchema.findOne({ hash: appHash });
+        if(app === null)
+            throw 'App not found.';
 
-		AppSchema.findOne({ hash: appHash})
-			.then(function(resApp, err) {
-				if(err) {
-					throw err;
-				}
+        const maxScore = yield UserSchema.mapReduce({
+            map: function() {
+                this.scores.forEach(i => {
+                    emit('score', i);
+                });
+            }
+            , reduce: function(key, values) {
+                return values.reduce((curr, next) => {
+                    return curr > next ? curr : next;
+                }, 0);
+            }
+            , query: { appHash, id: userId }
+        });
 
-				if(resApp === undefined) {
-					var erro = 'App not found';
-					console.log(error);
-					throw error;
-				}
-
-				app = resApp;
-
-				return bestScoresAggregade({ appHash: resApp.hash, id: userId }).exec();
-
-				// return UserSchema.findOne({ 
-				// 			appHash: resApp.hash 
-				// 			, id: userId
-				// 		})
-				// 		.select('scores -_id');
-			})
-			.then(function(result, err) {
-				if(err)	throw err;
-
-				if(result === undefined) {
-					var error = 'User not found';
-					console.log(error);
-					throw error;
-				}
-
-				res.send(result);
-			});
-	} catch (err) {
-		res.send(err);
-	}
+        res.send(maxScore);
+    });
 }
 
 function userScores(req, res) {

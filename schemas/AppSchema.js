@@ -6,7 +6,6 @@ const mongoose = require('mongoose')
 var AppSchema = new Schema({
 	hash: { type: String }
 	, name: { type: String }
-	, users: []
 });
 
 var App = mongoose.model('App', AppSchema);

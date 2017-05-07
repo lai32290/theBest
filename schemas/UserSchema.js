@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 var UserSchema = new Schema({
 	id: String
 	, appHash: String
-	, scores: []
+	, scores: [Number]
 });
 
 var User = mongoose.model('User', UserSchema);
