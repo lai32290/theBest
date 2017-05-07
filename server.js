@@ -9,18 +9,18 @@ const crypto = require('crypto')
 	, mongoHost = process.env.MONGO || 'localhost'
 	;
 
-var App = require('./modules/App.js')
+const App = require('./modules/App.js')
  	, User = require('./modules/User.js')
 	;
 
-var AppSchema = require('./schemas/AppSchema.js')
+const AppSchema = require('./schemas/AppSchema.js')
 	, UserSchema = require('./schemas/UserSchema.js')
 	;
 
-var apps = []
+const apps = []
 	;
 
-var props = {
+const props = {
 	appHash: 'app_hash'
 	, userId: 'user_id'
 	, score: 'score'
