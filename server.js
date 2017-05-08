@@ -49,30 +49,6 @@ app.listen(port, function() {
 	});
 });
 
-function success(data) {
-    return {
-        status: 'success',
-        statusCode: 1,
-        data: data
-    };
-}
-
-    /*
-function* getAppByHash(appHash) {
-    AppSchema.findOne({ hash: appHash})
-        .then(function(res) {
-            yeild res;
-        });
-}
-
-function* getUserById(appHash, id) {
-    UserSchema.findOne({appHash, id })
-        .then(res => {
-            yield res;
-        });
-}
-*/
-
 function index(req, res) {
 	res.sendFile(__dirname + '/index.html');
 }
@@ -173,12 +149,7 @@ function userScores(req, res) {
         res.send(success(scores));
     });
 }
-
 //////////////////
-function bestScore(scores) {
-	return Math.max.apply(Math, scores);
-}
-
 function bestScoresAggregade(match) {
 	return UserSchema.aggregate(
 		{
@@ -192,4 +163,13 @@ function bestScoresAggregade(match) {
 			}
 		});
 }
+
+function success(data) {
+    return {
+        status: 'success',
+        statusCode: 1,
+        data: data
+    };
+}
+
 //////////////////

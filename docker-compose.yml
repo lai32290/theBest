@@ -3,8 +3,20 @@ services:
   mongo:
     image: mongo
     volumes:
-      - /home/lxuancheng/Documents/db:/var/db
-    ports:
-      - 27017:27017
+      - ${PWD}/../db:/var/db
+    expose:
+      - "27017"
     restart: always
     container_name: theBestMongo
+  node:
+    image: node:6.10.3
+    volumes:
+      - ${PWD}:/var/local
+    ports:
+      - 80:3000
+    links:
+      - mongo:database
+    restart: always
+    container_name: theBestNode
+    command: node /var/local/server.js
+
