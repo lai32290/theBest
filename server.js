@@ -27,6 +27,8 @@ const props = {
 	, topLimit: 'top_limit'
 };
 
+const appNotFoundMsg = 'App not found.';
+
 mongoose.Promise = bluebird;
 
 app.use(bodyParser.json());  
@@ -77,8 +79,10 @@ function insertScore(req, res) {
 
     co(function* () {
         const app = yield AppSchema.findOne({ hash : appHash });
-        if(app === null)
-            throw 'App not found.';
+        if(app === null) {
+            res.send(error(appNotFoundMsg));
+            return;
+        }
 
         let user = yield UserSchema.findOne({ id : userId, appHash });
 
@@ -99,8 +103,10 @@ function tops(req, res) {
     co(function* () {
         const app = yield AppSchema.findOne({ hash: appHash});
 
-        if(app === null)
-            throw 'App not found.';
+        if(app === null) {
+            res.send(error(appNotFoundMsg));
+            return;
+        }
 
         const bestScores = yield bestScoresAggregade({ appHash }).limit(topLimit).exec();
 
@@ -114,8 +120,10 @@ function userBestScore(req, res) {
 
     co(function*() {
         const app = yield AppSchema.findOne({ hash: appHash });
-        if(app === null)
-            throw 'App not found.';
+        if(app === null) {
+            res.send(error(appNotFoundMsg));
+            return;
+        }
 
         const maxScore = yield UserSchema.mapReduce({
             map: function() {
@@ -142,8 +150,10 @@ function userScores(req, res) {
     co(function*() {
         const app = yield AppSchema.findOne({ hash : appHash });
 
-        if(app === null)
-            throw 'App not found.';
+        if(app === null) {
+            res.send(error(appNotFoundMsg));
+            return;
+        }
 
         const scores = yield UserSchema.findOne({ appHash, id: userId }).select('scores');
         res.send(success(scores));
@@ -166,9 +176,17 @@ function bestScoresAggregade(match) {
 
 function success(data) {
     return {
-        status: 'success',
-        statusCode: 1,
-        data: data
+        status: 'success'
+        , statusCode: 1
+        , data: data
+    };
+}
+
+function error(data) {
+    return {
+        status: 'error'
+        , statusCode: 0
+        , data: data
     };
 }
 
