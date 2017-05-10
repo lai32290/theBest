@@ -4,6 +4,8 @@ services:
     image: mongo
     volumes:
       - ~/db:/var/db
+    ports:
+      - 27017:27017
     restart: always
     container_name: theBestMongo
   node:
