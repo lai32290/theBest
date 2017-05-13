@@ -2,6 +2,42 @@
 
 The Best is a tiny and simple ranking API.
 
+## Installa
+
+### Required:
+- NodeJS
+- MongoDB
+
+### Step by Step:
+
+At first, clone this repository to your computer:
+
+`https://github.com/lai32290/theBest`
+
+#### With Docker:
+
+Then you can just edit the path where you want to keep your MongoDB file to `volumes` option in `docker-compose.yml` file.
+
+Sample:
+
+```
+  mongo:
+    image: mongo
+    volumes:
+      - {your-db-path}:/var/db
+    ports:
+      - 27017:27017
+    restart: always
+    container_name: theBestMongo
+```
+
+Then just execute `docker-compose up -d` and test it accessing on `localhost/status` (GET).
+
+#### Setup Manually:
+
+Then you can edit your environment configuration in the `settings.json` file and execute `node server.js`, then test it accessing on `localhost/status` (GET).
+
+
 ## URL
 
 ### `/status` (POST)
