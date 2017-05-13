@@ -15,7 +15,7 @@ services:
     ports:
       - 80:3000
     links:
-      - mongo:database
+      - mongo:theBestMongo
     restart: always
     container_name: theBestNode
     command: node /var/local/server.js

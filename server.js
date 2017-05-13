@@ -5,8 +5,10 @@ const crypto = require('crypto')
 	, mongoose = require('mongoose')
     , bluebird = require('bluebird')
 	, app = express()
-	, port = 3000
-	, mongoHost = process.env.MONGO || 'localhost'
+    , settings = require('./settings.json')
+	, port = settings.hostPort
+	, mongoHost = process.env.MONGO_HOST || settings.mongoHost
+    , mongoPort = process.env.MONGO_PORT || settings.mongoPort
 	;
 
 const App = require('./modules/App.js')
@@ -31,8 +33,8 @@ const appNotFoundMsg = 'App not found.';
 
 mongoose.Promise = bluebird;
 
-app.use(bodyParser.json());  
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', index);
 app.get('/status', getStatus);
@@ -46,7 +48,7 @@ app.post('/user/bestScore', userBestScore);
 app.listen(port, function() {
 	console.log('Service is running on port ' + port);
 	console.log('Host MongoDB : '+ mongoHost);
-	mongoose.connect('mongodb://'+ mongoHost +'/the_best', function() {
+    mongoose.connect(`mongodb://${mongoHost}:${mongoPort}/${settings.databaseName}`, function() {
 		console.log('MongoDB is connected');
 	});
 });

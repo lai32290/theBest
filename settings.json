@@ -1,0 +1,6 @@
+{
+    "hostPort" : "3000",
+    "mongoHost" : "localhost",
+    "mongoPort" : "27017",
+    "databaseName" : "the_best"
+}

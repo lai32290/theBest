@@ -1,4 +1,4 @@
 {
-  "esversion": 6,
-  "laxcomma" : true
+    "esversion" : 6,
+    "laxcomma" : true
 }
