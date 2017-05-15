@@ -98,3 +98,22 @@ Register a new score to the player
     "scores": [100, 200, 150, 30, 25, 0, 63]
 }
 ```
+
+### `/user/scores` (POST)
+Return all scores of a specifically user.
+
+#### Parameters:
+- `user_id` : The user identification, you can use your role to define the identification, the API will just use it to recover the user scores.
+- `app_hash` : The hash returned by `/app/new` request.
+
+#### Result Format:
+```
+{
+    "status" : "success",
+    "statusCode" : 1,
+    "data" : {
+        "_id" : "5918fc59a43b2200012d91e6",
+        "scores" : [100, 200, 300]
+    }
+}
+```
