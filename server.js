@@ -38,8 +38,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', index);
 app.get('/status', getStatus);
-app.post('/app/tops', tops);
 app.post('/app/new', newApp);
+app.post('/app/tops', tops);
 
 app.post('/user/insertScore', insertScore);
 app.post('/user/scores', userScores);
