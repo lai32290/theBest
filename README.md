@@ -47,7 +47,15 @@ Check if the API is working.
 No parameters required
 
 #### Result Format:
-`{ message : "The Best is On!" }`
+```
+{
+    "status" : "success",
+    "statusCode" : 1,
+    "data" : {
+        "message" : "The Best is On!"
+    }
+}
+```
 
 ### `/app/new` (POST)
 Register a new application in the service and returing a hash to use in other requests.
@@ -56,7 +64,15 @@ Register a new application in the service and returing a hash to use in other re
 - `name` : The name of application
 
 #### Result Format:
-`{ hash : '82267be7b55d204e0f996fa0a09a37890df2a9e1' }`
+```
+{
+    "status" : "success",
+    "statusCode" : 1,
+    "data" : {
+        hash : '82267be7b55d204e0f996fa0a09a37890df2a9e1'
+    }
+}
+```
 
 ### `/app/tops` (POST)
 Get the top rankings.
@@ -93,9 +109,13 @@ Register a new score to the player
 #### Result Format:
 ```
 {
-    "id": "590f529976aa6142d91870b7",
-    "appHash": "82267be7b55d204e0f996fa0a09a37890df2a9e1",
-    "scores": [100, 200, 150, 30, 25, 0, 63]
+    "status" : "success",
+    "statusCode" : 1,
+    "data" : {
+        "id": "590f529976aa6142d91870b7",
+        "appHash": "82267be7b55d204e0f996fa0a09a37890df2a9e1",
+        "scores": [100, 200, 150, 30, 25, 0, 63]
+    }
 }
 ```
 
