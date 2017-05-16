@@ -141,7 +141,9 @@ function userBestScore(req, res) {
             , query: { appHash, id: userId }
         });
 
-        res.send(maxScore);
+        if(maxScore.length > 0)
+            res.send(success({ score: maxScore[0].value}));
+        res.send(success({ score: 0}));
     });
 }
 

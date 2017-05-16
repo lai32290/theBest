@@ -137,3 +137,23 @@ Return all scores of a specifically user.
     }
 }
 ```
+
+
+### `/user/bestScore` (POST)
+Return best score of a specifically user.
+
+#### Parameters:
+- `user_id` : The user identification, you can use your role to define the identification, the API will just use it to recover the user scores.
+- `app_hash` : The hash returned by `/app/new` request.
+
+#### Result Format:
+```
+{
+    "status" : "success",
+    "statusCode" : 1,
+    "data" : {
+        "_id" : "5918fc59a43b2200012d91e6",
+        "score" : 1000
+    }
+}
+```
