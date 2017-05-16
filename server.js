@@ -160,7 +160,7 @@ function userScores(req, res) {
         }
 
         const scores = yield UserSchema.findOne({ appHash, id: userId }).select('scores');
-        res.send(success(scores));
+        res.send(success({ scores: scores.scores }));
     });
 }
 //////////////////

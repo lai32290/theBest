@@ -132,7 +132,6 @@ Return all scores of a specifically user.
     "status" : "success",
     "statusCode" : 1,
     "data" : {
-        "_id" : "5918fc59a43b2200012d91e6",
         "scores" : [100, 200, 300]
     }
 }
@@ -152,7 +151,6 @@ Return best score of a specifically user.
     "status" : "success",
     "statusCode" : 1,
     "data" : {
-        "_id" : "5918fc59a43b2200012d91e6",
         "score" : 1000
     }
 }
